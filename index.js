@@ -2,10 +2,15 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config()
 
 const TOKEN = process.env.TOKEN;
-
 const bot = new TelegramBot(TOKEN, {
-    polling: true,
+    webHook: {
+        port: 443
+    }
 });
+
+const serverURL = process.env.URL;
+bot.setWebHook(`${serverURL}/bot${TOKEN}`);
+
 
 function isNumeric(str) {
     if (typeof str != "string") return false // we only process strings!
@@ -34,6 +39,6 @@ bot.on('message', (msg) => {
             bot.sendMessage(id, createMessage(), {
                 disable_notification: true,
             });
-        }, 3000)
+        }, 1000)
     }
 });

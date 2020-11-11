@@ -11,8 +11,8 @@
     "nodemon": "^2.0.6"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "DEBUG=node-telegram-bot-api node index.js",
+    "dev": "DEBUG=node-telegram-bot-api nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Big Mosh",

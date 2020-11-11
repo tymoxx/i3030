@@ -32,7 +32,7 @@ bot.on('message', (msg) => {
     // console.log(JSON.stringify(msg, null, 2));
     const {id} = msg.chat;
 
-    const createMessage = () => getRandomPraise() + ', ' + msg.chat.first_name + ' ' + getRandomEmoji();
+    const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
 
     if (isNumeric(msg.text) && (parseInt(msg.text) > 5 && parseInt(msg.text) <= 100)) {
         setTimeout(() => {

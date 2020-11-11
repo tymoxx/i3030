@@ -14,7 +14,7 @@ function isNumeric(str) {
 }
 
 function getRandomPraise() {
-    const praises = ['молоток', 'мужик', 'так тримати', 'Титан'];
+    const praises = ['молоток', 'мужик', 'так тримати', 'Титан', '✅ засчитано', '👍 красавчик'];
     return praises[Math.floor(Math.random() * praises.length)];
 }
 
@@ -27,7 +27,13 @@ bot.on('message', (msg) => {
     // console.log(JSON.stringify(msg, null, 2));
     const {id} = msg.chat;
 
+    const createMessage = () => getRandomPraise() + ', ' + msg.chat.first_name + ' ' + getRandomEmoji();
+
     if (isNumeric(msg.text) && (parseInt(msg.text) > 5 && parseInt(msg.text) <= 100)) {
-        bot.sendMessage(id, getRandomPraise() + ', ' + msg.chat.first_name + ' ' + getRandomEmoji());
+        setTimeout(() => {
+            bot.sendMessage(id, createMessage(), {
+                disable_notification: true,
+            });
+        }, 3000)
     }
 });

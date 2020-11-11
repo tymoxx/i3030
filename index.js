@@ -34,7 +34,7 @@ bot.on('message', (msg) => {
 
     const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
 
-    if (isNumeric(msg.text) && (parseInt(msg.text) > 5 && parseInt(msg.text) <= 100)) {
+    if (isNumeric(msg.text) && (parseInt(msg.text) > 4 && parseInt(msg.text) <= 70)) {
         setTimeout(() => {
             bot.sendMessage(id, createMessage(), {
                 disable_notification: true,

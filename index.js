@@ -53,13 +53,13 @@ bot.on('message', (msg) => {
         number = parseFloat(msg.text);
     } else return null;
 
-    if (Number.isInteger(number) && isInPushupRange(number)) {
+    if (Number.isInteger(number) && isInPushupRange(number) && number !== 37) {
         setTimeout(() => {
             bot.sendMessage(id, createMessage(), {
                 disable_notification: true,
             });
         }, 500)
-    } else if (!Number.isInteger(number) && isInFeverRange(number)) {
+    } else if ((!Number.isInteger(number) && isInFeverRange(number)) || number === 37) {
         setTimeout(() => {
             bot.sendMessage(id, createFeverMessage(), {
                 disable_notification: true,

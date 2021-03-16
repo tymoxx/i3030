@@ -5,7 +5,7 @@ run dev server: `yarn dev`
 
 ngrok: `ngrok http 443`
 
-remember to set the ngrok https URL to .env file
+remember to set the ngrok **https** URL to .env file
 
 
 ### Heroku:

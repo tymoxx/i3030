@@ -1,9 +1,11 @@
 # Telegram Bot i3030
 
 ### Development
+`yarn install`
+
 run dev server: `yarn dev`
 
-ngrok: `ngrok http 443`
+ngrok: `ngrok http http://localhost:443`
 
 remember to set the ngrok **https** URL to .env file
 

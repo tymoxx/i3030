@@ -60,13 +60,13 @@ function saveTrainingTodDb(msg) {
     })
     training.save()
         .then((result) => {
-            console.log('RRRR', result);
+            console.log('Saved to DB -->', result);
         }).catch(err => console.error('-->', err)
     );
 }
 
 bot.on('message', (msg) => {
-    console.log('-->', JSON.stringify(msg, null, 2));
+    // console.log('-->', JSON.stringify(msg, null, 2));
 
     const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
     const createFeverMessage = () => {
@@ -81,9 +81,6 @@ bot.on('message', (msg) => {
     const {id} = msg.chat;
 
     const pushUps = stringToNumber(msg.text);
-
-    console.log('pushups', pushUps);
-
 
     if (Number.isInteger(pushUps) && isInPushUpRange(pushUps) && pushUps !== 37) {
         setTimeout(() => {

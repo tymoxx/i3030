@@ -83,8 +83,9 @@ bot.on('message', (msg) => {
 
             bot.sendMessage(id, createMessage(), {
                 disable_notification: true,
-            });
-        }, 400)
+                reply_to_message_id: msg.message_id
+            }).then(() => console.log('message Successfully sent'))
+        }, 1400)
     } else if ((!Number.isInteger(pushUps) && isInFeverRange(pushUps)) || pushUps === 37) {
         setTimeout(() => {
             bot.sendMessage(id, createFeverMessage(), {

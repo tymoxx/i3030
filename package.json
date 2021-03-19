@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "mongoose": "^5.12.1",
     "node-telegram-bot-api": "^0.50.0"
   },
   "devDependencies": {

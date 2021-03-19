@@ -1,5 +1,13 @@
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config()
+const mongoose = require('mongoose');
+
+const DB_URI = process.env.DB_URI
+mongoose.connect(DB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
+    .then(() => {
+        console.log('Connected to DB')
+    })
+    .catch(err => console.error('-->', err));
 
 const TOKEN = process.env.TOKEN;
 const bot = new TelegramBot(TOKEN, {
@@ -20,7 +28,7 @@ const isNumeric = (str) => {
 
 const isWhole = (num) => num % 1 === 0;
 
-const getRandomPraise = () =>{
+const getRandomPraise = () => {
     const praises = ['молоток', 'мужик', 'так тримати', 'Титан', '✅ засчитано', '👍 красавчик'];
     return praises[Math.floor(Math.random() * praises.length)];
 }

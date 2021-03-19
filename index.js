@@ -20,8 +20,6 @@ const bot = new TelegramBot(TOKEN, {
 const serverURL = process.env.URL;
 bot.setWebHook(`${serverURL}/bot${TOKEN}`);
 
-const isWhole = (num) => num % 1 === 0;
-
 const getRandomPraise = () => {
     const praises = ['молоток', 'мужик', 'так тримати', 'Титан', '✅ засчитано', '👍 красавчик'];
     return praises[Math.floor(Math.random() * praises.length)];
@@ -30,10 +28,6 @@ const getRandomPraise = () => {
 function getRandomEmoji() {
     const praises = ['💪', '💪', '🎉', '🔥'];
     return praises[Math.floor(Math.random() * praises.length)];
-}
-
-const checkIfFever = (text) => {
-    return false;
 }
 
 const isNumeric = (str) => {

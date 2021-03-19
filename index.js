@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config()
 const mongoose = require('mongoose');
+const Training = require('./model/training');
 
 const DB_URI = process.env.DB_URI
 mongoose.connect(DB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -19,13 +20,6 @@ const bot = new TelegramBot(TOKEN, {
 const serverURL = process.env.URL;
 bot.setWebHook(`${serverURL}/bot${TOKEN}`);
 
-
-const isNumeric = (str) => {
-    if (typeof str != "string") return false // we only process strings!
-    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-}
-
 const isWhole = (num) => num % 1 === 0;
 
 const getRandomPraise = () => {
@@ -42,36 +36,69 @@ const checkIfFever = (text) => {
     return false;
 }
 
+const isNumeric = (str) => {
+    if (typeof str != "string") return false // we only process strings!
+    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
+
+const stringToNumber = (string) => {
+    if (isNumeric(string)) {
+        return parseFloat(string);
+    }
+    return null;
+}
+
+function saveTrainingTodDb(msg) {
+    const date = new Date(msg.date * 1000);
+
+    const training = new Training({
+        userId: msg.from.id,
+        username: msg.from.username,
+        date: date,
+        numberOfPushUps: stringToNumber(msg.text)
+    })
+    training.save()
+        .then((result) => {
+            console.log('RRRR', result);
+        }).catch(err => console.error('-->', err)
+    );
+}
+
 bot.on('message', (msg) => {
-    // console.log(JSON.stringify(msg, null, 2));
+    console.log('-->', JSON.stringify(msg, null, 2));
+
     const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
     const createFeverMessage = () => {
-        const messages = ['🖕', 'дулі!', '💩', '🤒'];
-        return messages[Math.floor(Math.random() * messages.length)];
+        const messagesArr = ['🖕', 'дулі!', '💩', '🤒'];
+        return messagesArr[Math.floor(Math.random() * messagesArr.length)];
     };
 
-    const isInPushupRange = num => num > 4 && num <= 70;
+    const isInPushUpRange = num => num > 4 && num <= 70;
 
     const isInFeverRange = num => num > 36.6 && num <= 38.5;
 
     const {id} = msg.chat;
-    let number = null;
 
-    if (isNumeric(msg.text)) {
-        number = parseFloat(msg.text);
-    } else return null;
+    const pushUps = stringToNumber(msg.text);
 
-    if (Number.isInteger(number) && isInPushupRange(number) && number !== 37) {
+    console.log('pushups', pushUps);
+
+
+    if (Number.isInteger(pushUps) && isInPushUpRange(pushUps) && pushUps !== 37) {
         setTimeout(() => {
+
+            saveTrainingTodDb(msg);
+
             bot.sendMessage(id, createMessage(), {
                 disable_notification: true,
             });
-        }, 500)
-    } else if ((!Number.isInteger(number) && isInFeverRange(number)) || number === 37) {
+        }, 400)
+    } else if ((!Number.isInteger(pushUps) && isInFeverRange(pushUps)) || pushUps === 37) {
         setTimeout(() => {
             bot.sendMessage(id, createFeverMessage(), {
                 disable_notification: true,
             });
-        }, 500)
+        }, 400)
     }
 });

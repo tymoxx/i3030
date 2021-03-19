@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const trainingSchema = new Schema({
-    user: {
+    userId: {
+        type: Number,
+        required: true
+    },
+    username: {
         type: String,
         required: true
     },

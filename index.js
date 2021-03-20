@@ -2,10 +2,11 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config()
 const mongoose = require('mongoose');
 const Training = require('./model/training');
+const startOfWeek = require('date-fns/startOfWeek');
 
 /** init DB */
 mongoose.connect(process.env.DB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
-    .then(() => {
+    .then((db) => {
         console.log('Connected to DB')
     })
     .catch(err => console.error('-->', err));
@@ -21,12 +22,12 @@ const serverURL = process.env.URL;
 bot.setWebHook(`${serverURL}/bot${TOKEN}`);
 
 const getRandomPraise = () => {
-    const praises = ['молоток', 'мужик', 'так тримати', 'Титан', '✅ засчитано', '👍 красавчик'];
+    const praises = ['молоток', 'мужик', 'так тримати', 'титан', 'засчитано', 'красавчик', 'круто'];
     return praises[Math.floor(Math.random() * praises.length)];
 }
 
 function getRandomEmoji() {
-    const praises = ['💪', '💪', '🎉', '🔥'];
+    const praises = ['💪', '💪', '🎉', '🔥', '👍'];
     return praises[Math.floor(Math.random() * praises.length)];
 }
 
@@ -43,7 +44,14 @@ const stringToNumber = (string) => {
     return null;
 }
 
-const createMessage = (msg) => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
+const createMessage = (msg, stats) => {
+    const name = msg.chat.first_name || msg.from.first_name
+    const weekTotal = stats;
+
+    // 📈 this week: 123
+    return `
+    ${getRandomPraise()}, ${name} ${getRandomEmoji()}`; /* TODO set weekTotal number */
+};
 
 const replyWithDelay = (msg, replyMsg) => (
     setTimeout(() =>
@@ -54,6 +62,10 @@ const replyWithDelay = (msg, replyMsg) => (
         }), 400)
 );
 
+const getSumOfValuesInArrayOfObjects = function (array, prop) {
+    return array.reduce((a, b) => a + b[prop], 0);
+};
+
 function handleTraining(msg) {
     const date = new Date(msg.date * 1000);
 
@@ -63,11 +75,26 @@ function handleTraining(msg) {
         date: date,
         numberOfPushUps: stringToNumber(msg.text)
     })
+
+    function getCurrentWeekTotal(currentTraining) {
+        const lastMonday = startOfWeek(new Date(), {weekStartsOn: 1});
+
+        Training.find({
+            "date": {$gt: lastMonday},
+            "userId": currentTraining.userId,
+        }).then((res) => {
+            const total = getSumOfValuesInArrayOfObjects(res, 'numberOfPushUps')
+            console.log('total:', total);
+        }).catch(err => console.error('-->', err))
+    }
+
+
     /** Save to DB and Reply */
     training.save()
         .then((result) => {
+            getCurrentWeekTotal(result);
             console.log(`✅ Training saved to DB. 🙎${result.username}: ${result.numberOfPushUps}`);
-            replyWithDelay(msg, createMessage(msg));
+            replyWithDelay(msg, createMessage(msg, 'testStats'));
         }).catch(err => console.error('-->', err)
     );
 }

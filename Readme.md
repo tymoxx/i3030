@@ -19,3 +19,9 @@ See Logs:
 
 Temporarily stop the Heroku server:
 `heroku maintenance:on`
+
+## Chat History Importer
+It is a project for importing Telegram chat history to Mongo DB.
+`cd history-mporter`
+
+`node index.js`

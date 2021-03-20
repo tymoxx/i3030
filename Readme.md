@@ -11,6 +11,8 @@ remember to set the ngrok **https** URL to .env file
 
 
 ### Heroku:
+(add Heroku app as a Git remote, if needed: `heroku git:remote -a yourapp`)
+
 Deploy:
 `git push heroku main`
 

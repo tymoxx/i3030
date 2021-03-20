@@ -21,7 +21,7 @@ const save = () => {
         return null;
     }
 
-    function saveTrainingTodDb(msg) {
+    function saveTrainingToDb(msg) {
         const training = new Training({
             userId: msg['from_id'],
             username: msg.from,
@@ -54,7 +54,7 @@ const save = () => {
         }
 
         if (isInPushUpRange(pushUps)) {
-            saveTrainingTodDb(msg)
+            saveTrainingToDb(msg)
 
             /** Create array of results **/
             /* const training = {

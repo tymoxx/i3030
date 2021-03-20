@@ -66,7 +66,7 @@ function handleTraining(msg) {
     /** Save to DB and Reply */
     training.save()
         .then((result) => {
-            console.log('✅ Training saved to DB -->', result);
+            console.log(`✅ Training saved to DB. 🙎${result.username}: ${result.numberOfPushUps}`);
             replyWithDelay(msg, createMessage(msg));
         }).catch(err => console.error('-->', err)
     );

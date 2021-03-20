@@ -30,13 +30,13 @@ function getRandomEmoji() {
     return praises[Math.floor(Math.random() * praises.length)];
 }
 
-const isNumeric = (str) => {
-    if (typeof str != "string") return false // we only process strings!
-    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-}
-
 const stringToNumber = (string) => {
+    const isNumeric = (str) => {
+        if (typeof str != "string") return false // we only process strings!
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+            !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+    }
+
     if (isNumeric(string)) {
         return parseFloat(string);
     }
@@ -63,35 +63,30 @@ bot.on('message', (msg) => {
     // console.log('-->', JSON.stringify(msg, null, 2));
 
     const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
+
     const createFeverMessage = () => {
         const messagesArr = ['🖕', 'дулі!', '💩', '🤒'];
         return messagesArr[Math.floor(Math.random() * messagesArr.length)];
     };
 
     const isInPushUpRange = num => num > 4 && num <= 70;
-
     const isInFeverRange = num => num > 36.6 && num <= 38.5;
-
-    const {id} = msg.chat;
-
     const pushUps = stringToNumber(msg.text);
 
-    if (Number.isInteger(pushUps) && isInPushUpRange(pushUps) && pushUps !== 37) {
-        setTimeout(() => {
-
-            saveTrainingTodDb(msg);
-
-            bot.sendMessage(id, createMessage(), {
-                disable_notification: true,
+    const replyDelayed = (replyMsg) => (
+        setTimeout(() =>
+            bot.sendMessage(msg.chat.id, replyMsg, {
                 reply_to_message_id: msg.message_id,
-                allow_sending_without_reply: true
-            });
-        }, 400)
-    } else if ((!Number.isInteger(pushUps) && isInFeverRange(pushUps)) || pushUps === 37) {
-        setTimeout(() => {
-            bot.sendMessage(id, createFeverMessage(), {
                 disable_notification: true,
-            });
-        }, 400)
+                allow_sending_without_reply: true
+            }), 400)
+    );
+
+    if (Number.isInteger(pushUps) && isInPushUpRange(pushUps) && pushUps !== 37) {
+        // saveTrainingTodDb(msg);
+        replyDelayed(createMessage());
+
+    } else if ((!Number.isInteger(pushUps) && isInFeverRange(pushUps)) || pushUps === 37) {
+        replyDelayed(createFeverMessage());
     }
 });

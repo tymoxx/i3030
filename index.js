@@ -65,15 +65,16 @@ bot.on('message', (msg) => {
     const createMessage = () => getRandomPraise() + ', ' + (msg.chat.first_name || msg.from.first_name) + ' ' + getRandomEmoji();
 
     const createFeverMessage = () => {
-        const messagesArr = ['🖕', 'дулі!', '💩', '🤒'];
+        const messagesArr = ['Get better!', 'дулі!', '💩', '🤒'];
         return messagesArr[Math.floor(Math.random() * messagesArr.length)];
     };
 
-    const isInPushUpRange = num => num > 4 && num <= 70;
-    const isInFeverRange = num => num > 36.6 && num <= 38.5;
+    const isInFeverRange = num => num === 37 || (!Number.isInteger(num) && (num > 36.6 && num <= 38.5));
+    const isInPushUpRange = num => Number.isInteger(pushUps) && (num > 4 && num <= 70);
+
     const pushUps = stringToNumber(msg.text);
 
-    const replyDelayed = (replyMsg) => (
+    const replyWithDelay = (replyMsg) => (
         setTimeout(() =>
             bot.sendMessage(msg.chat.id, replyMsg, {
                 reply_to_message_id: msg.message_id,
@@ -82,11 +83,12 @@ bot.on('message', (msg) => {
             }), 400)
     );
 
-    if (Number.isInteger(pushUps) && isInPushUpRange(pushUps) && pushUps !== 37) {
-        // saveTrainingTodDb(msg);
-        replyDelayed(createMessage());
+    if (isInFeverRange(pushUps)) {
+        return replyWithDelay(createFeverMessage());
+    }
 
-    } else if ((!Number.isInteger(pushUps) && isInFeverRange(pushUps)) || pushUps === 37) {
-        replyDelayed(createFeverMessage());
+    if (isInPushUpRange(pushUps)) {
+        // saveTrainingTodDb(msg);
+        replyWithDelay(createMessage());
     }
 });

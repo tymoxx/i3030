@@ -3,6 +3,7 @@ require('dotenv').config()
 const mongoose = require('mongoose');
 const Training = require('./model/training');
 const startOfWeek = require('date-fns/startOfWeek');
+const statsUrl = 'https://charts.mongodb.com/charts-i3030-kpcbo/public/dashboards/6056f474-8269-4108-89fe-49358c160042'
 
 /** init DB */
 mongoose.connect(process.env.DB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -195,6 +196,13 @@ bot.on('edited_message', (msg) => {
     console.log('🖊 edited message:', msg.message_id);
 });
 
-// bot.onText(/\/stats/, (msg) => {
-//     bot.sendMessage(msg.chat.id, "Welcome");
-// });
+bot.onText(/\/start/, (msg) => {
+    const name = msg.chat.first_name || msg.from.first_name
+    bot.sendMessage(msg.chat.id, `Hello, ${name} ! \nTo see statistics type /stats`);
+});
+
+bot.onText(/\/stats/, (msg) => {
+    bot.sendMessage(msg.chat.id, `See statistics <a href='${statsUrl}'> >> HERE >>  📊</a>`, {
+        'parse_mode': 'HTML',
+    });
+});

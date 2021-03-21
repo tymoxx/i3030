@@ -6,6 +6,10 @@ const trainingSchema = new Schema({
         type: Number,
         required: true
     },
+    messageId: {
+        type: Number,
+        required: true
+    },
     username: {
         type: String,
         required: true

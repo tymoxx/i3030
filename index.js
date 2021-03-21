@@ -56,7 +56,6 @@ const createMessage = (msg, stats) => {
 const replyWithDelay = (msg, replyMsg) => (
     setTimeout(() =>
         bot.sendMessage(msg.chat.id, replyMsg, {
-            reply_to_message_id: msg.message_id,
             disable_notification: true,
             allow_sending_without_reply: true
         }), 400)
@@ -71,6 +70,7 @@ function handleTraining(msg) {
 
     const training = new Training({
         userId: msg.from.id,
+        messageId: msg.message_id,
         username: msg.from.username,
         date: date,
         numberOfPushUps: stringToNumber(msg.text)
@@ -119,4 +119,8 @@ bot.on('message', (msg) => {
     if (isInPushUpRange(pushUps)) {
         handleTraining(msg);
     }
+});
+
+bot.on('edited_message', (msg) => {
+    console.log('🖊 edited message:', msg.message_id);
 });

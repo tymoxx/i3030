@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config()
 const mongoose = require('mongoose');
+const mongodb = require('../db');
 const Training = require('./model/training');
 const startOfWeek = require('date-fns/startOfWeek');
 const statsUrl = 'https://charts.mongodb.com/charts-i3030-kpcbo/public/dashboards/6056f474-8269-4108-89fe-49358c160042'
@@ -118,7 +119,6 @@ const stringToNumber = (string) => {
 const createMessage = (msg, stats) => {
     const name = msg.chat.first_name || msg.from.first_name
     const weekTotal = stats;
-
     // 📈 this week: 123
     return `
     ${getRandomPraise()}, ${name} ${getRandomEmoji()}`; /* TODO set weekTotal number */
@@ -147,23 +147,40 @@ function handleTraining(msg) {
         numberOfPushUps: stringToNumber(msg.text)
     })
 
-    function getCurrentWeekTotal(currentTraining) {
+    async function getCurrentWeekTotal() {
         const lastMonday = startOfWeek(new Date(), {weekStartsOn: 1});
+        const today = new Date();
 
-        Training.find({
-            "date": {$gt: lastMonday},
-            "userId": currentTraining.userId,
-        }).then((res) => {
-            const total = getSumOfValuesInArrayOfObjects(res, 'numberOfPushUps')
-            console.log('total:', total);
-        }).catch(err => console.error('-->', err))
+        Training.aggregate([
+            {
+                $match: {
+                    date: {
+                        $gte: lastMonday,
+                        $lte: today
+                    },
+                    userId: msg.from.id
+                }
+            },
+            {$group: {_id: "$username", total: {$sum: "$numberOfPushUps"}}},
+            {$sort: {total: 1}}
+        ])
+            .then((res) => {
+                // bot.sendMessage(msg.chat.id, `This week: <strong>${res[0].total}</strong> push ups`, {
+                //     'parse_mode': 'HTML',
+                // });
+                return () => res[0].total;
+            })
+            .catch(err => console.error('-->', err));
     }
 
 
     /** Save to DB and Reply */
     training.save()
         .then((result) => {
-            getCurrentWeekTotal(result);
+            getCurrentWeekTotal().then((res) => {
+                console.log('ttttt', res);
+
+            });
             console.log(`✅ Training saved to DB. 🙎${result.username}: ${result.numberOfPushUps}`);
             replyWithDelay(msg, createMessage(msg, 'testStats'));
         }).catch(err => console.error('-->', err)
@@ -192,9 +209,9 @@ bot.on('message', (msg) => {
     }
 });
 
-bot.on('edited_message', (msg) => {
-    console.log('🖊 edited message:', msg.message_id);
-});
+// bot.on('edited_message', (msg) => {
+//     console.log('🖊 edited message:', msg.message_id);
+// });
 
 bot.onText(/\/start/, (msg) => {
     const name = msg.chat.first_name || msg.from.first_name
@@ -205,4 +222,9 @@ bot.onText(/\/stats/, (msg) => {
     bot.sendMessage(msg.chat.id, `See statistics <a href='${statsUrl}'> >> HERE >>  📊</a>`, {
         'parse_mode': 'HTML',
     });
+});
+
+
+bot.onText(/\/t/, (msg) => {
+
 });

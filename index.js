@@ -114,13 +114,12 @@ const stringToNumber = (string) => {
     return null;
 }
 
-const createMessage = (msg, stats) => {
+const createMessage = (msg, weekTotal) => {
     const name = msg.chat.first_name || msg.from.first_name
-    const weekTotal = stats;
 
-    // 📈 this week: 123
-    return `
-    ${getRandomPraise()}, ${name} ${getRandomEmoji()}`; /* TODO set weekTotal number */
+    return ` ${getRandomPraise()}, ${name} ${getRandomEmoji()}
+    \n📈 this week: ${weekTotal}
+    `;
 };
 
 const replyWithDelay = (msg, replyMsg) => (
@@ -135,7 +134,7 @@ const getSumOfValuesInArrayOfObjects = function (array, prop) {
     return array.reduce((a, b) => a + b[prop], 0);
 };
 
-function handleTraining(msg) {
+async function handleTraining(msg) {
     const date = new Date(msg.date * 1000);
 
     const training = new Training({
@@ -149,24 +148,27 @@ function handleTraining(msg) {
     function getCurrentWeekTotal(currentTraining) {
         const lastMonday = startOfWeek(new Date(), {weekStartsOn: 1});
 
-        Training.find({
+        return Training.find({
             "date": {$gt: lastMonday},
             "userId": currentTraining.userId,
         }).then((res) => {
             const total = getSumOfValuesInArrayOfObjects(res, 'numberOfPushUps')
             console.log('total:', total);
+            return total;
         }).catch(err => console.error('-->', err))
     }
 
 
     /** Save to DB and Reply */
-    training.save()
-        .then((result) => {
-            getCurrentWeekTotal(result);
-            console.log(`✅ Training saved to DB. 🙎${result.username}: ${result.numberOfPushUps}`);
-            replyWithDelay(msg, createMessage(msg, 'testStats'));
-        }).catch(err => console.error('-->', err)
-    );
+
+    try {
+        const result = await training.save();
+        const weeksTotal = await getCurrentWeekTotal(result);
+        console.log(`✅ Training saved to DB. 🙎${result.username}: ${result.numberOfPushUps}`);
+        replyWithDelay(msg, createMessage(msg, weeksTotal));
+    } catch (err) {
+        console.error('-->', err)
+    }
 }
 
 const isInFeverRange = num => num === 37 || (!Number.isInteger(num) && (num > 36.6 && num <= 38.5));

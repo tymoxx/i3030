@@ -24,6 +24,7 @@ bot.setWebHook(`${serverURL}/bot${TOKEN}`);
 
 const getRandomPraise = () => {
     const praises = [
+        'Remember Vanya! no pain no gain!',
         'Все, что ты можешь сделать, это стараться изо всех сил',
         'Доверяй своим инстинктам',
         'Никто не идеален, это нормально',

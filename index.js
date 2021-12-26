@@ -157,7 +157,7 @@ async function handleTraining(msg) {
     const training = new Training({
         userId: msg.from.id,
         messageId: msg.message_id,
-        username: msg.from.username,
+        username: msg?.from?.username || null,
         date: date,
         numberOfPushUps: stringToNumber(msg.text)
     })

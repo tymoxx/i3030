@@ -12,7 +12,7 @@ const trainingSchema = new Schema({
     },
     username: {
         type: String,
-        required: true
+        required: false
     },
     date: {
         type: Date,
